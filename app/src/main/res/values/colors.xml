@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matches FallbackLightColors.background in Color.kt. -->
+    <color name="launch_background">#FAF8FF</color>
+    <color name="ic_launcher_background">#44567F</color>
+</resources>
