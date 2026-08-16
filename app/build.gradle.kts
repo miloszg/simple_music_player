@@ -9,12 +9,12 @@ plugins {
 }
 
 android {
-    namespace = "app.plainly.music"
+    namespace = "app.flow.music"
     compileSdk = libs.versions.compileSdk.get().toInt()
     compileSdkMinor = libs.versions.compileSdkMinor.get().toInt()
 
     defaultConfig {
-        applicationId = "app.plainly.music"
+        applicationId = "app.flow.music"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1

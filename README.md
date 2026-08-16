@@ -1,4 +1,4 @@
-# Plainly Music
+# Flow
 
 An offline music player for Android. Reads the music already on your phone, plays
 it, and does nothing else.
@@ -7,27 +7,30 @@ it, and does nothing else.
   the network at all.
 - **No ads, no analytics, no accounts, no Play Services.** The same APK runs on
   Google Play, F-Droid and GrapheneOS.
-- **Follows your phone.** Light/dark from the system setting, colours from your
-  wallpaper on Android 12+.
+- **Follows your phone.** Light and dark from the system setting. The palette is
+  Flow's own — one accent, deliberately not wallpaper-derived.
 
-First app in the *Plainly* suite: open-source, single-purpose, no-nonsense.
+Open-source, single-purpose, no-nonsense.
+
+The idea behind the name and the mark: not standing up to the current, becoming
+part of it. The icon is three measured bars dissolving into water.
 
 ## Status
 
 Walking skeleton: it scans a real library, groups it correctly and plays it,
 with the notification and lock-screen controls working. Not yet shippable.
 
-| Phase | State |
+| Area | State |
 |---|---|
-| 0. Toolchain | done |
-| 1. Project skeleton | done |
-| 2. Design system | theme + core components done; fast scroller outstanding |
-| 3. Library scanner (MediaStore → Room → index) | done, 51 unit tests |
-| 4. Playback (Media3) | done: queue, shuffle/repeat, persistence, resumption, browse tree |
-| 5. UI | Songs/Albums/Artists/Folders, mini player, now playing. **Missing: detail screens, search UI, settings UI, playlists, favourites UI, sort menus, fast scroller** |
-| 6. Release engineering | R8 build verified (4.2 MB). **Missing: CI, signing, baseline profile, store metadata** |
+| Toolchain, Gradle, CI-less build | done |
+| Library: MediaStore scan → Room → in-memory index | done, 51 unit tests |
+| Playback: Media3 session, queue, resumption, browse tree | done |
+| FLOW design: palette, type, cover plates, mark | done |
+| Screens: Home, Search, Library, player, detail, settings | done |
+| Playlists + liked songs | data layer done; some UI still stubbed |
+| Release engineering: CI, signing, baseline profile, store metadata | not started |
 
-Release APK is 4.2 MB and has been run minified end-to-end, so R8 is not
+Release APK is 4.7 MB and has been run minified end-to-end, so R8 is not
 silently breaking Room or Media3 reflection.
 
 ## Building
@@ -43,6 +46,13 @@ Requires JDK 21 and the Android SDK (platform 37.1, build-tools 37).
 
 `local.properties` must point at your SDK; it is not checked in.
 
+### Design
+
+The visual language — Cherry `#DE1043`, Instrument Serif for titles and cover
+plates, Instrument Sans for everything else, four rotating plate treatments for
+untagged albums — is ported from the Flow design project. Both typefaces are SIL
+Open Font License; the licence ships in `app/src/main/assets/licenses/`.
+
 ### Testing against a real library
 
 The emulator ships with no music. To seed one that exercises the awkward
@@ -50,7 +60,7 @@ grouping cases (compilations, two albums sharing a title, accented artists):
 
 ```sh
 adb push my-music/ /sdcard/Music/
-adb shell content call --uri content://media/external --method scan_volume
+adb shell content call --uri content://media --method scan_volume --arg external_primary
 ```
 
 ### Toolchain notes

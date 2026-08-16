@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  A record: outer disc, label, spindle hole. Flat single colour, no gradient.
-  Drawn inside the adaptive-icon safe zone (the centre 72dp of 108dp).
+  FLOW mark "E — bars becoming water", on the adaptive-icon canvas.
+
+  The design's 100-unit artwork is scaled to 0.60 and offset so the drawn
+  content (x 8..100.5, y 12..92) centres inside the 108dp canvas.
+
+  0.60 puts the mark inside a ~56dp box. That is well under the 72dp safe zone
+  because a *circular* mask — the Pixel default — inscribes a 66dp circle in
+  that square, and the mark is 92.5 units wide against 80 tall: at 0.78 the wave
+  ran straight off the right-hand edge of the disc.
+
+  Each bar is a round-capped line rather than a rounded rect: with the corner
+  radius at half the width the shapes are identical, and this keeps the mark to
+  four paths so the monochrome themed-icon layer stays legible.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
@@ -9,20 +20,35 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Disc -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M54,20a34,34 0 1,0 0.01,0zM54,28a26,26 0 1,1 -0.01,0z" />
+    <group
+        android:scaleX="0.60"
+        android:scaleY="0.60"
+        android:translateX="21.45"
+        android:translateY="22.8">
 
-    <!-- Groove -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:fillAlpha="0.55"
-        android:pathData="M54,34a20,20 0 1,0 0.01,0zM54,36.5a17.5,17.5 0 1,1 -0.01,0z" />
+        <!-- Three measured bars. -->
+        <path
+            android:pathData="M13,37 L13,67"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="10"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M29,25 L29,79"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="10"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M45,17 L45,87"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="10"
+            android:strokeLineCap="round" />
 
-    <!-- Label with spindle hole -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M54,42a12,12 0 1,0 0.01,0zM54,51a3,3 0 1,1 -0.01,0z" />
-
+        <!-- Dissolving into the current. -->
+        <path
+            android:pathData="M56,52 C66,34 74,70 96,54"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="9"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+    </group>
 </vector>

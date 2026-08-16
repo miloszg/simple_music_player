@@ -6,7 +6,7 @@
       (enableEdgeToEdge configures them at runtime), and a background that
       matches the light scheme so the cold-start flash isn't jarring.
     -->
-    <style name="Theme.PlainlyMusic" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.Flow" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/launch_background</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>

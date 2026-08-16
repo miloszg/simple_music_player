@@ -5,9 +5,9 @@
   would only be wrong on a new device.
 -->
 <full-backup-content>
-    <include domain="database" path="plainly-music.db" />
+    <include domain="database" path="flow-music.db" />
     <include domain="sharedpref" path="." />
     <include domain="file" path="datastore/" />
-    <exclude domain="database" path="plainly-music.db-wal" />
-    <exclude domain="database" path="plainly-music.db-shm" />
+    <exclude domain="database" path="flow-music.db-wal" />
+    <exclude domain="database" path="flow-music.db-shm" />
 </full-backup-content>
