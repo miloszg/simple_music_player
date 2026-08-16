@@ -1,0 +1,9 @@
+First release.
+
+• Scans your local library into albums, artists, folders and songs
+• Background playback, lock screen controls, headphone buttons
+• Resumes where you stopped
+• Playlists and liked songs
+• Instant search
+• Light and dark themes
+• No network permission, no ads, no account
