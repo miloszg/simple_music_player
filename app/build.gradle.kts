@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -7,6 +8,26 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
 }
+
+/**
+ * Upload-key credentials, kept out of the repository.
+ *
+ * Create `keystore.properties` next to this file (it is gitignored) with:
+ *
+ *   storeFile=/absolute/path/to/flow-upload.jks
+ *   storePassword=...
+ *   keyAlias=upload
+ *   keyPassword=...
+ *
+ * Generate the key with `tools/release/make-keystore.sh`. Without this file the
+ * release build still assembles — unsigned — so CI and `assembleRelease` keep
+ * working for anyone who only wants to check that R8 is behaving.
+ */
+val keystoreProperties = Properties().apply {
+    val f = rootProject.file("app/keystore.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
+}
+val hasUploadKey = keystoreProperties.getProperty("storeFile") != null
 
 android {
     namespace = "app.flow.music"
@@ -26,12 +47,24 @@ android {
         ksp { arg("room.schemaLocation", "$projectDir/schemas") }
     }
 
+    signingConfigs {
+        if (hasUploadKey) {
+            create("upload") {
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
         }
         release {
+            if (hasUploadKey) signingConfig = signingConfigs.getByName("upload")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
