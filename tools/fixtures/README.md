@@ -18,11 +18,18 @@ The four covers are photographs from Lorem Picsum (Unsplash-sourced, free for
 commercial use), cropped square and graded as one series. `gen_art.py` still
 contains the original drawn covers if you prefer them.
 
-Do not substitute real commercial album art here. These images end up in
-`fastlane/metadata/`, which is a public repo and a Play listing — third-party
-cover art in either is someone else's copyright and Play enforces it under its
-intellectual-property policy. To see the app with your own music, use
-`use-my-music.sh` instead; those captures stay on your machine.
+### Licensed third-party artwork
+
+The library also contains **Nujabes — Metaphorical Music** (Hydeout Productions,
+2003) with its real tracklist, durations and release artwork. It is included at
+the repository owner's direction, on their statement that they hold permission
+from the rights holder to use the artwork in Flow's store listing.
+
+Anything else you add here needs the same footing. These files end up in
+`fastlane/metadata/`, which is a public repo and a Play listing, and Play
+enforces third-party cover art under its intellectual-property policy — the
+strike lands on the developer account. If you just want to look at the app with
+your own collection, use `use-my-music.sh`; those captures stay on your machine.
 
 ## Looking at it with your own library
 

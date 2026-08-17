@@ -5,6 +5,19 @@
 # implies a licensing relationship that does not exist, and Play's misleading
 # -content policy is enforced on exactly that.
 LIBRARY = [
+  # Nujabes — Metaphorical Music (Hydeout Productions, 2003).
+  # Real tracklist and durations, with the release artwork. Included at the
+  # repository owner's direction; they have stated they hold permission from
+  # the rights holder to use this artwork in Flow's store listing.
+  dict(dir="Metaphorical Music", album="Metaphorical Music", artist="Nujabes", year=2003,
+       art="metaphorical", freq=210, tracks=[
+        ("Blessing It (Remix)", 203), ("Horn in the Middle", 248),
+        ("Lady Brown", 198), ("Kumomi", 233),
+        ("Highs 2 Lows", 278), ("Beat Laments the World", 262),
+        ("Letter from Yokosuka", 190), ("Think Different", 197),
+        ("A Day by Atmosphere Supreme", 239), ("Next View", 275),
+        ("Latitude (Remix)", 236), ("F.I.L.O.", 211),
+        ("Summer Gypsy", 259), ("The Final View", 215), ("Peaceland", 499)]),
   dict(dir="Hanami Tape", album="Hanami Tape", artist="Yuki Sōma", year=2019,
        art="hanami", freq=196, tracks=[
         ("Komorebi", 214), ("Paper Lanterns", 187), ("Third Cup", 252),

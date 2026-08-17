@@ -11,12 +11,13 @@ MUTED = (0x6B, 0x63, 0x66)
 
 # Almost no text: one line each. The screenshots carry it.
 PANELS = [
-    ("home",          "Your music. Nothing else."),
-    ("player",        "A player, not a platform."),
-    ("library",       "Every album you kept."),
-    ("detail",        "Straight to the track."),
-    ("search",        "Finds it instantly."),
-    ("library-songs", "Even the untagged ones."),
+    ("home",   "Your music. Nothing else."),
+    ("player", "A player, not a platform."),
+    ("library","Every album you kept."),
+    ("detail", "The whole record, in order."),
+    # Captured mid-query with results on screen. The empty state shows a grid
+    # of browse tiles, which in a listing just reads as a wall of dark boxes.
+    ("search", "Finds it as you type."),
 ]
 
 out = pathlib.Path("store/phoneScreenshots")
