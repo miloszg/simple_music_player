@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <!--
+      Media3's session API is annotated @UnstableApi almost in its entirety, and
+      there is no stable alternative — MediaSession, MediaController and
+      MediaLibraryService are all marked. Opting in per call site means
+      annotating every class that so much as touches playback, and the marker
+      then propagates outward through view models into the UI.
+
+      So we opt in once, deliberately, and accept the contract: Media3 minor
+      upgrades can break source compatibility, and the playback package is
+      where that will land.
+    -->
+    <issue id="UnsafeOptInUsageError">
+        <option name="opt-in" value="androidx.media3.common.util.UnstableApi" />
+    </issue>
+</lint>

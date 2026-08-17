@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 11 and below. Back up playlists, favourites and settings; never the
+  scanned library mirror, which is rebuilt from MediaStore on first launch and
+  would only be wrong on a new device.
+-->
+<full-backup-content>
+    <include domain="database" path="flow-music.db" />
+    <include domain="sharedpref" path="." />
+    <include domain="file" path="datastore/" />
+    <exclude domain="database" path="flow-music.db-wal" />
+    <exclude domain="database" path="flow-music.db-shm" />
+</full-backup-content>

@@ -1,0 +1,39 @@
+Flow is an offline music player for the songs already stored on your phone. It reads your MP3, FLAC, M4A, OGG and WAV files, sorts them into albums, artists and folders, and plays them. That is the whole app.
+
+It has no network permission. Not "we promise not to track you" — the permission is absent from the manifest, so there is no connection for anything to travel over. You can check: Settings, Apps, Flow, Permissions.
+
+WHAT IT DOES
+
+• Scans your local music library — albums, artists, folders, songs
+• Background playback with lock screen and notification controls
+• Headphone and Bluetooth buttons, pauses when you unplug
+• Picks up where you left off, even after a restart
+• Playlists you make yourself, kept on the device
+• Liked songs
+• Search across titles, albums and artists — instant, because nothing is fetched
+• Light and dark, following your system setting
+
+WHAT IT DOES NOT DO
+
+• No ads. Not "fewer ads" — none.
+• No account, no sign-in, no email address
+• No analytics, no crash reporting, no advertising ID
+• No Google Play Services dependency
+• No streaming, no recommendations, no social feed
+• No permission to read anything except your audio files
+
+BUILT FOR PEOPLE WHO STILL KEEP THEIR MUSIC
+
+If you have ripped CDs, bought from Bandcamp, recorded your own things, or kept an MP3 folder alive across six phones, this is for you. Flow does not want to sell you a subscription or convince you your collection is obsolete.
+
+Untagged albums are not punished. When a file has no embedded artwork, Flow sets the album name in a serif on a coloured plate instead of showing a grey placeholder, so a shelf of badly-tagged rips still looks like a record collection.
+
+OPEN SOURCE
+
+Flow is free software under the GPL-3.0. The source is public, so you can read exactly what it does and build it yourself rather than taking our word for any of the above.
+
+PERMISSIONS, AND WHY
+
+• Read audio files — to find your music. This is the only one that matters.
+• Notifications — to show the playback controls. Requested the first time you press play.
+• Foreground service — to keep playing while the screen is off.

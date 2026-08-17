@@ -1,0 +1,178 @@
+package app.flow.music.domain
+
+import app.flow.music.domain.model.Album
+import app.flow.music.domain.model.Artist
+import app.flow.music.domain.model.Folder
+import app.flow.music.domain.model.ScannedSong
+import app.flow.music.domain.model.Song
+
+/**
+ * Works out which songs belong to the same album and the same artist.
+ *
+ * `MediaStore.Audio.ALBUM_ID` is not good enough on its own: it is derived from
+ * the album name alone on some devices, so two unrelated bands with an album
+ * called "Home" collapse into one, and a compilation whose tracks each carry a
+ * different `ARTIST` scatters into a dozen one-track albums.
+ *
+ * The rules here are:
+ *
+ *  1. A song with an `ALBUM_ARTIST` tag groups by (album name, album artist).
+ *     This is the tag that exists precisely to answer this question, so when
+ *     it's present we trust it and stop.
+ *
+ *  2. A song without one provisionally groups by (album name, track artist).
+ *
+ *  3. Then compilation rescue: if several rule-2 groups share an album name
+ *     *and* live in the same directory, they are one album by several artists.
+ *     They merge and get credited to [VARIOUS_ARTISTS]. The directory check is
+ *     what stops two genuinely different albums called "Greatest Hits" from
+ *     being fused; people who rip compilations put them in one folder.
+ *
+ * Everything is folded case- and accent-insensitively first, so "Motörhead" and
+ * "Motorhead" are the same artist.
+ *
+ * Pure and total — no Android, no I/O — so the rules above are unit-testable.
+ */
+object LibraryGrouper {
+
+    const val VARIOUS_ARTISTS = "Various Artists"
+    const val UNKNOWN_ARTIST = "Unknown artist"
+    const val UNKNOWN_ALBUM = "Unknown album"
+
+    /** MediaStore writes this literal string into ARTIST when a file has no tag. */
+    private const val MEDIASTORE_UNKNOWN = "<unknown>"
+
+    fun group(scanned: List<ScannedSong>): LibraryIndex {
+        val albumArtistByProvisionalKey = resolveAlbumArtists(scanned)
+
+        val songs = scanned.map { row ->
+            val albumName = row.album.displayOr(UNKNOWN_ALBUM)
+            val credited = albumArtistByProvisionalKey.getValue(row.provisionalAlbumKey())
+            Song(
+                scanned = row,
+                albumKey = albumKeyOf(albumName, credited),
+                artistKey = artistKeyOf(credited),
+                albumArtistName = credited,
+            )
+        }
+
+        return LibraryIndex(
+            songs = songs,
+            albums = buildAlbums(songs),
+            artists = buildArtists(songs),
+            folders = buildFolders(songs),
+        )
+    }
+
+    /**
+     * Decides the credited album artist for every provisional group, applying
+     * rules 1-3 above. Keyed by [ScannedSong.provisionalAlbumKey] so the caller
+     * can look up each row's answer in one pass.
+     */
+    private fun resolveAlbumArtists(scanned: List<ScannedSong>): Map<String, String> {
+        val result = HashMap<String, String>()
+
+        // Rule 2 candidates, bucketed by (folded album name, directory).
+        val untaggedByAlbumAndDir = HashMap<Pair<String, String>, MutableSet<String>>()
+
+        for (row in scanned) {
+            val tagged = row.albumArtist?.displayOrNull()
+            if (tagged != null) {
+                result[row.provisionalAlbumKey()] = tagged // rule 1
+            } else {
+                val artist = row.artist.displayOr(UNKNOWN_ARTIST)
+                result[row.provisionalAlbumKey()] = artist // rule 2, may be overwritten below
+                val bucket = row.album.displayOr(UNKNOWN_ALBUM).foldForSearch() to row.relativePath
+                untaggedByAlbumAndDir.getOrPut(bucket) { LinkedHashSet() }.add(artist)
+            }
+        }
+
+        // Rule 3: same album name, same directory, more than one artist, no
+        // album-artist tag anywhere in the group -> it's a compilation.
+        for ((bucket, artists) in untaggedByAlbumAndDir) {
+            if (artists.size < 2) continue
+            val (foldedAlbum, dir) = bucket
+            for (row in scanned) {
+                if (row.albumArtist?.displayOrNull() != null) continue
+                if (row.relativePath != dir) continue
+                if (row.album.displayOr(UNKNOWN_ALBUM).foldForSearch() != foldedAlbum) continue
+                result[row.provisionalAlbumKey()] = VARIOUS_ARTISTS
+            }
+        }
+
+        return result
+    }
+
+    private fun buildAlbums(songs: List<Song>): List<Album> =
+        songs.groupBy { it.albumKey }.map { (key, tracks) ->
+            val first = tracks.first()
+            Album(
+                key = key,
+                name = first.album.displayOr(UNKNOWN_ALBUM),
+                albumArtist = first.albumArtistName,
+                artistKey = first.artistKey,
+                // Reissues and rips often disagree on year; the earliest tagged
+                // one is the closest thing to the album's actual release.
+                year = tracks.mapNotNull { it.year }.filter { it > 0 }.minOrNull(),
+                songCount = tracks.size,
+                durationMs = tracks.sumOf { it.durationMs },
+                artworkSongId = tracks.minByOrNull { it.discTrackOrder }?.mediaStoreId,
+            )
+        }.sortedWith(compareBy({ it.albumArtist.foldForSort() }, { it.year ?: 0 }, { it.name.foldForSort() }))
+
+    private fun buildArtists(songs: List<Song>): List<Artist> =
+        songs.groupBy { it.artistKey }.map { (key, tracks) ->
+            Artist(
+                key = key,
+                name = tracks.first().albumArtistName,
+                albumCount = tracks.distinctBy { it.albumKey }.size,
+                songCount = tracks.size,
+                durationMs = tracks.sumOf { it.durationMs },
+                artworkSongId = tracks.minByOrNull { it.discTrackOrder }?.mediaStoreId,
+            )
+        }.sortedBy { it.name.foldForSort() }
+
+    private fun buildFolders(songs: List<Song>): List<Folder> =
+        songs.groupBy { it.relativePath }.map { (path, tracks) ->
+            Folder(
+                path = path,
+                name = path.trim('/').substringAfterLast('/').ifEmpty { "/" },
+                songCount = tracks.size,
+                durationMs = tracks.sumOf { it.durationMs },
+                artworkSongId = tracks.first().mediaStoreId,
+            )
+        }.sortedBy { it.path.foldForSort() }
+
+    fun albumKeyOf(albumName: String, albumArtist: String): Long =
+        stableKey(albumName.foldForSearch(), albumArtist.foldForSearch())
+
+    fun artistKeyOf(artistName: String): Long = stableKey(artistName.foldForSearch())
+
+    private fun ScannedSong.provisionalAlbumKey(): String {
+        val tagged = albumArtist?.displayOrNull()
+        val credit = tagged ?: artist.displayOr(UNKNOWN_ARTIST)
+        // The directory is part of the provisional key only for untagged rows,
+        // so rule 3 can rewrite one directory's worth of songs without touching
+        // a same-named album that lives elsewhere.
+        val scope = if (tagged != null) "" else relativePath
+        return "${album.displayOr(UNKNOWN_ALBUM).foldForSearch()}\u0000${credit.foldForSearch()}\u0000$scope"
+    }
+
+    private fun stableKey(vararg parts: String): Long {
+        var hash = -0x340d631b7bdddcdbL
+        for ((i, part) in parts.withIndex()) {
+            if (i > 0) hash = (hash xor 0L) * 0x100000001B3L
+            for (byte in part.toByteArray(Charsets.UTF_8)) {
+                hash = hash xor (byte.toLong() and 0xFF)
+                hash *= 0x100000001B3L
+            }
+        }
+        return if (hash == 0L) 1L else hash
+    }
+
+    /** MediaStore's `<unknown>` placeholder and blanks both mean "not tagged". */
+    private fun String?.displayOrNull(): String? =
+        this?.trim()?.takeIf { it.isNotEmpty() && it != MEDIASTORE_UNKNOWN }
+
+    private fun String?.displayOr(fallback: String): String = displayOrNull() ?: fallback
+}
